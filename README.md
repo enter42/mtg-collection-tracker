@@ -44,9 +44,11 @@ A web application for managing your Magic: The Gathering card collection.
 
 ### Prerequisites
 - Go 1.21 or higher
-- MySQL 5.7 or higher
+- MySQL 5.7 or higher (or Docker for easy setup)
 
 ### Installation
+
+#### Option 1: Using Docker (Recommended)
 
 1. Clone the repository:
 ```bash
@@ -59,9 +61,45 @@ cd mtg-collection-tracker
 go mod download
 ```
 
-3. Create MySQL database:
+3. Start MySQL using Docker Compose:
 ```bash
-mysql -u root -p -e "CREATE DATABASE mtg_collection;"
+docker compose up -d
+```
+
+4. Copy the Docker environment file:
+```bash
+cp .env.docker .env
+```
+
+5. Wait for MySQL to be ready (about 10-15 seconds), then run the application:
+```bash
+go run cmd/server/main.go
+```
+
+#### Option 2: Using Existing MySQL Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/enter42/mtg-collection-tracker.git
+cd mtg-collection-tracker
+```
+
+2. Install dependencies:
+```bash
+go mod download
+```
+
+3. Create MySQL database and user:
+```bash
+mysql -u root -p
+```
+
+```sql
+CREATE DATABASE mtg_collection;
+CREATE USER 'mtguser'@'localhost' IDENTIFIED BY 'mtgpass';
+GRANT ALL PRIVILEGES ON mtg_collection.* TO 'mtguser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 4. Copy the example environment file and configure it:
@@ -73,8 +111,8 @@ cp .env.example .env
 ```
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
+DB_USER=mtguser
+DB_PASSWORD=mtgpass
 DB_NAME=mtg_collection
 SERVER_PORT=8080
 SESSION_SECRET=your-secret-key-change-this
@@ -99,6 +137,19 @@ make build
 ```
 
 The application will be available at `http://localhost:8080`
+
+## Quick Start with Docker
+
+For the fastest setup, run the provided setup script:
+
+```bash
+./setup.sh
+```
+
+This will:
+- Start MySQL in a Docker container
+- Configure the environment
+- Provide instructions to run the application
 
 ## Usage
 
@@ -134,6 +185,86 @@ mtg-collection-tracker/
 ├── Makefile
 └── README.md
 ```
+
+## Database Schema
+
+The application automatically creates the following tables:
+
+### Users Table
+- `id` - Primary key
+- `username` - Unique username
+- `password` - Bcrypt hashed password
+- `created_at`, `updated_at`, `deleted_at` - Timestamps
+
+### Cards Table
+- `id` - Primary key
+- `user_id` - Foreign key to users table
+- `card_name` - Name of the card
+- `card_image_url` - URL to card image
+- `set_code` - MTG set code
+- `collector_number` - Collector number
+- `language` - Card language
+- `quantity` - Number of copies
+- `buying_price` - Purchase price in THB
+- `bought_date` - Purchase date
+- `sell_date` - Sale date (if sold)
+- `created_at`, `updated_at`, `deleted_at` - Timestamps
+
+## API Routes
+
+### Public Routes
+- `GET /` - Redirect to login
+- `GET /login` - Login page
+- `POST /login` - Login submission
+- `GET /register` - Registration page
+- `POST /register` - Registration submission
+
+### Protected Routes (Requires Authentication)
+- `GET /logout` - Logout
+- `GET /cards` - List all cards with pagination and search
+- `GET /cards/add` - Add card form
+- `POST /cards/add` - Create new card
+- `GET /cards/edit/:id` - Edit card form
+- `POST /cards/edit/:id` - Update card
+- `POST /cards/delete/:id` - Delete card
+
+## Development
+
+### Code Structure
+
+The application follows Clean Architecture principles:
+
+- **Domain Layer** (`internal/domain/`): Contains business entities and repository interfaces
+- **Use Case Layer** (`internal/usecase/`): Contains business logic
+- **Infrastructure Layer** (`internal/infrastructure/`): Contains database implementations
+- **Handler Layer** (`internal/handler/`): Contains HTTP handlers and middleware
+- **Templates** (`templates/`): Contains HTML templates
+
+### Running Tests
+
+```bash
+make test
+```
+
+### Building
+
+```bash
+make build
+./bin/server
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+
+If you get database connection errors:
+1. Ensure MySQL is running: `sudo service mysql status` or `docker compose ps`
+2. Verify credentials in `.env` file
+3. Check if database exists: `mysql -u mtguser -p -e "SHOW DATABASES;"`
+
+### Port Already in Use
+
+If port 8080 is already in use, change `SERVER_PORT` in `.env` file to a different port.
 
 ## License
 
