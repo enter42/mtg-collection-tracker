@@ -1,0 +1,78 @@
+{{ define "content" }}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-plus-circle"></i> Add New Card</h4>
+            </div>
+            <div class="card-body">
+                {{ if .error }}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> {{ .error }}
+                </div>
+                {{ end }}
+                
+                <form method="POST" action="/cards/add">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="card_name" class="form-label">Card Name *</label>
+                            <input type="text" class="form-control" id="card_name" name="card_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="card_image_url" class="form-label">Card Image URL</label>
+                            <input type="text" class="form-control" id="card_image_url" name="card_image_url">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="set_code" class="form-label">Set Code</label>
+                            <input type="text" class="form-control" id="set_code" name="set_code">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="collector_number" class="form-label">Collector Number</label>
+                            <input type="text" class="form-control" id="collector_number" name="collector_number">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="language" class="form-label">Language</label>
+                            <input type="text" class="form-control" id="language" name="language" value="English">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="form-label">Quantity *</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="buying_price" class="form-label">Buying Price (THB)</label>
+                            <input type="number" step="0.01" class="form-control" id="buying_price" name="buying_price" value="0">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bought_date" class="form-label">Bought Date</label>
+                            <input type="date" class="form-control" id="bought_date" name="bought_date">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="sell_date" class="form-label">Sell Date</label>
+                        <input type="date" class="form-control" id="sell_date" name="sell_date">
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="/cards" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Add Card
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
